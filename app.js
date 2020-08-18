@@ -4,13 +4,16 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const mongoose = require('mongoose');
 const connect = mongoose.connect('mongodb://localhost:27017/IoT');
 
-var passport = require('passport');
-var authenticate = require('./authenticate');
+const passport = require('passport');
+const authenticate = require('./authenticate');
+const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 
 connect.then((db)=> {
   console.log("Connected to server (mongo)")
@@ -19,6 +22,13 @@ connect.then((db)=> {
 
 const app = express();
 
+app.use(session({
+  name: 'session-id',
+  secret: '12345-67890-09876-54321',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
