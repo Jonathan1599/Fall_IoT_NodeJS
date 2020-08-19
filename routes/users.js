@@ -17,8 +17,21 @@ router.route('/login')
   res.setHeader('Content-Type','text/html');
   res.render('login');
 })
-.post(passport.authenticate('local', { failureRedirect: '/login' }),(req,res,next) => {
+.post(passport.authenticate('local', { successReturnToOrRedirect: '/', failureRedirect: 'login' }),(req,res,next) => {
   res.send("congratulations");
+})
+
+router.get('/logout',(req,res,next) => {
+  if(req.session){
+    req.session.destroy();
+    res.clearCookie('session-id')
+    res.redirect('/');
+  }
+  else{
+    var err = new Error('You are not logged in!');
+    err.status = 403;
+    next(err);
+  }
 })
 
 router.route('/signup')
@@ -26,9 +39,13 @@ router.route('/signup')
   res.statusCode = 200;
   res.render('signup')
 });
-router.get('/test',connectEnsureLogin.ensureLoggedIn(),(req,res,next) =>{
+
+
+router.get('/test',connectEnsureLogin.ensureLoggedIn('/users/login'),(req,res,next) =>{
   res.send("logged in " + req.user.username);
 })
+
+
 router.post('/signupuser', (req,res, next) => {
   User.register(new User({username: req.body.username}),
   req.body.password,(err, user) => {
