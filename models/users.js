@@ -1,10 +1,12 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
+const device = require('./devices');
 var passportLocalMongoose = require('passport-local-mongoose');
 var User = new Schema({
     firstname: {
         type: String,
-        default: ''
+        default: '',
+        //required: true
     },
     lastname:{
         type: String,
@@ -13,7 +15,12 @@ var User = new Schema({
     admin: {
         type: Boolean,
         default: false
-    }
+    },
+
+    devices:[{
+        type: mongoose.Schema.Types.ObjectId ,
+        ref: 'Device'
+    }]
   
 })
 

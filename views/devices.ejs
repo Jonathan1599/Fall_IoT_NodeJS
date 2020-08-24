@@ -4,18 +4,64 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <script src=https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
   </head>
   <body>
     
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
 
+    <p id="output"></p>
+
+    <canvas id="myChart" width="50" height="50"></canvas>
+
     <script>
+      let servData = [];
       let socket;
+      let op = document.getElementById("output");
       socket = io.connect('http://localhost:9000');
-      socket.on("data", (dataval) => {
-        console.log(dataval);
-      })
-    </script>
+      
+      socket.on("firstdata", (data) => {
+        op.innerHTML = data.dataval;
+        servData = data.dataval;
+      });
+
+      var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+      // The type of chart we want to create
+      type: 'line',
+
+      // The data for our dataset
+      data: {
+          labels: servData,
+          datasets: [{
+              label: 'My First dataset',
+              backgroundColor: 'rgb(255, 99, 132)',
+              borderColor: 'rgb(255, 99, 132)',
+              data: servData
+          }]
+      },
+
+      // Configuration options go here
+      options: {}
+
+    });
+      
+      socket.on("data",(data) => {
+        servData.push(data.dataval);
+        op.innerHTML = servData;
+        chart.data.labels.push(data.dataval);
+        //chart.data.datasets.forEach((dataset) => {
+        //dataset.data.push(data.dataval);
+        chart.data.datasets.data.push(data.dataval);
+        
+      //});
+      chart.update();
+    });
+   
+
+console.log(servData);
+</script>
+
   </body>
 </html>
