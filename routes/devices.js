@@ -25,6 +25,12 @@ const io = socket(express().listen(9000));
         
 //     })
 //   });
+ router.get('/', async (req, res, next) => {
+  if(req.isAuthenticated() == false)
+  return res.redirect('/users/login')
+  user = await User.findById(req.user._id)
+  res.send(user.devices.toString());
+ });
 
   router.route('/register')
   .get((req,res,next) => {
